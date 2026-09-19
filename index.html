@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Kasir Voice Satellite — Standalone</title>
+  <title>Kasir Satellite — Voice POS</title>
   <meta name="theme-color" content="#0d1117">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -34,7 +34,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 16px;
+      padding: 14px;
       overflow-x: hidden;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
@@ -46,7 +46,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       padding-bottom: 24px;
     }
 
@@ -56,7 +56,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 4px;
+      padding: 4px;
     }
     .brand {
       display: flex;
@@ -101,6 +101,47 @@
     }
     .btn-icon:hover { color: #fff; border-color: var(--primary); }
 
+    /* Browser Alert Banner */
+    .banner-warning {
+      width: 100%;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #fbbf24;
+      line-height: 1.4;
+      display: none;
+    }
+    .banner-warning strong { color: #fff; }
+
+    /* Mode Selector */
+    .mode-bar {
+      width: 100%;
+      display: flex;
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid var(--card-border);
+      gap: 4px;
+    }
+    .mode-tab {
+      flex: 1;
+      padding: 8px 10px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .mode-tab.active {
+      background: #1e293b;
+      color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
     /* Wake Word Badge */
     .wake-badge {
       display: inline-flex;
@@ -131,12 +172,12 @@
     /* Voice Orb */
     .orb-container {
       position: relative;
-      width: 220px;
-      height: 220px;
+      width: 200px;
+      height: 200px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 12px 0;
+      margin: 8px 0;
       cursor: pointer;
     }
     .orb-ring-outer {
@@ -144,7 +185,7 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      border: 2px dashed rgba(56, 189, 248, 0.2);
+      border: 2px dashed rgba(56, 189, 248, 0.25);
       animation: spin 20s linear infinite;
       transition: all 0.4s ease;
     }
@@ -153,12 +194,12 @@
       width: 82%;
       height: 82%;
       border-radius: 50%;
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      border: 1px solid rgba(56, 189, 248, 0.35);
       transition: all 0.4s ease;
     }
     .orb {
-      width: 140px;
-      height: 140px;
+      width: 135px;
+      height: 135px;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 35%, #38bdf8, #0369a1 70%, #082f49);
       box-shadow: 0 0 40px var(--primary-glow), inset 0 0 20px rgba(255,255,255,0.4);
@@ -166,12 +207,12 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       position: relative;
       z-index: 2;
     }
     .orb-icon {
-      font-size: 44px;
+      font-size: 42px;
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
       transition: transform 0.3s;
     }
@@ -181,6 +222,13 @@
       background: radial-gradient(circle at 35% 35%, #34d399, #059669 70%, #064e3b);
       box-shadow: 0 0 60px var(--accent-glow), inset 0 0 25px rgba(255,255,255,0.5);
       transform: scale(1.08);
+      animation: pulse 1.4s infinite;
+    }
+    .orb.recording {
+      background: radial-gradient(circle at 35% 35%, #f87171, #dc2626 70%, #7f1d1d);
+      box-shadow: 0 0 60px var(--danger-glow), inset 0 0 25px rgba(255,255,255,0.5);
+      transform: scale(1.1);
+      animation: pulse 0.8s infinite;
     }
     .orb.processing {
       background: radial-gradient(circle at 35% 35%, #fbbf24, #d97706 70%, #78350f);
@@ -189,13 +237,13 @@
     }
     .orb.error {
       background: radial-gradient(circle at 35% 35%, #f87171, #dc2626 70%, #7f1d1d);
-      box-shadow: 0 0 60px var(--danger-glow);
+      box-shadow: 0 0 50px var(--danger-glow);
     }
 
     @keyframes spin { 100% { transform: rotate(360deg); } }
     @keyframes pulse {
       0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.04); opacity: 0.85; }
+      50% { transform: scale(1.05); opacity: 0.85; }
     }
 
     /* Status Text */
@@ -352,6 +400,31 @@
       border-color: var(--danger);
     }
 
+    /* Diagnostics Log Window */
+    .diag-box {
+      width: 100%;
+      background: #070a11;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #94a3b8;
+      max-height: 100px;
+      overflow-y: auto;
+      line-height: 1.4;
+      text-align: left;
+    }
+    .diag-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #64748b;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
     /* Settings Modal */
     .modal-overlay {
       position: fixed;
@@ -409,13 +482,12 @@
     }
     .toggle-row span { font-size: 13px; color: #e5e7eb; }
 
-    /* Footer */
     footer {
       margin-top: auto;
       font-size: 11px;
       color: #6b7280;
       text-align: center;
-      padding-top: 12px;
+      padding-top: 8px;
     }
   </style>
 </head>
@@ -434,10 +506,25 @@
       <button class="btn-icon" id="btnSettings" title="Pengaturan">⚙️</button>
     </header>
 
+    <!-- Browser Warning Banner (Brave) -->
+    <div class="banner-warning" id="bannerWarning">
+      ⚠️ <strong>Tips Browser Brave:</strong> Brave secara bawaan memblokir mesin pengenal suara Google. Jika mode Hands-Free hening, Anda bisa gunakan <strong>Mode Rekam Suara</strong> di bawah atau buka website ini di <strong>Google Chrome</strong>!
+    </div>
+
+    <!-- Mode Selector Bar -->
+    <div class="mode-bar">
+      <div class="mode-tab active" id="tabContinuous" onclick="switchMode('continuous')">
+        🗣️ Hands-Free (Wake Word)
+      </div>
+      <div class="mode-tab" id="tabPush" onclick="switchMode('push')">
+        🔴 Rekam Suara (Gemini)
+      </div>
+    </div>
+
     <!-- Wake Word Trigger Badge -->
     <div class="wake-badge" id="wakeBadge" title="Klik untuk ubah Wake Word">
       <span class="pulse-dot"></span>
-      <span>Kata Pemicu: <strong id="lblWakeWord">"Halo Kasir"</strong></span>
+      <span>Kata Pemicu: <strong id="lblWakeWord">"Halo Ciko"</strong></span>
       <span>✏️</span>
     </div>
 
@@ -452,8 +539,8 @@
 
     <!-- Status Text -->
     <div class="status-panel">
-      <div class="status-title" id="statusTitle">Klik Mic untuk Memulai</div>
-      <div class="status-sub" id="statusSub">Ucapkan kata pemicu atau langsung sentuh mic</div>
+      <div class="status-title" id="statusTitle">Klik Mic untuk Mulai</div>
+      <div class="status-sub" id="statusSub">Sentuh lingkaran mic untuk mengaktifkan pendengaran</div>
     </div>
 
     <!-- Live Transcript Card -->
@@ -476,6 +563,15 @@
         <button class="btn-action btn-print" id="btnPrintRawbt">🖨️ Cetak Struk (RawBT)</button>
         <button class="btn-action btn-close-receipt" id="btnCloseReceipt">Tutup</button>
       </div>
+    </div>
+
+    <!-- Diagnostics Log -->
+    <div class="diag-box" id="diagBox">
+      <div class="diag-title">
+        <span>Diagnostik Sistem</span>
+        <span id="diagStatus">Standby</span>
+      </div>
+      <div id="diagLogs">Inisialisasi sistem satellite...</div>
     </div>
 
     <!-- Quick Action Chips -->
@@ -518,7 +614,7 @@
 
       <div class="input-group">
         <label>Custom Wake Word (Kata Pemicu)</label>
-        <input type="text" id="inpWakeWord" placeholder="Contoh: Halo Bagir, Halo Kasir, dll">
+        <input type="text" id="inpWakeWord" placeholder="Contoh: Halo Ciko, Halo Kasir, dll">
       </div>
 
       <div class="input-group">
@@ -550,12 +646,11 @@
     const DEFAULT_CONFIG = {
       GAS_URL: 'https://script.google.com/macros/s/AKfycbwE__FljOWLc29vJVF_bUF2eEgJ_X3QOfuwCxAG8dEA29RBIKxkmYk2IRTijKDTTe50Hg/exec',
       SECRET: 'sk_kasir_2271e024-eb90-47',
-      WAKE_WORD: 'Halo Kasir',
+      WAKE_WORD: 'Halo Ciko',
       AUTO_PRINT: false,
       VOICE_FEEDBACK: true
     };
 
-    // Load Local Storage
     let CFG = {
       GAS_URL: localStorage.getItem('POS_GAS_URL') || DEFAULT_CONFIG.GAS_URL,
       SECRET: localStorage.getItem('POS_SECRET') || DEFAULT_CONFIG.SECRET,
@@ -564,7 +659,19 @@
       VOICE_FEEDBACK: localStorage.getItem('POS_VOICE_FEEDBACK') !== 'false'
     };
 
-    // Audio Context Synthesizer (Chime & Beeps)
+    // Logging Diagnostik
+    const diagLogs = document.getElementById('diagLogs');
+    const diagStatus = document.getElementById('diagStatus');
+    function log(msg) {
+      console.log(msg);
+      const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
+      const line = document.createElement('div');
+      line.innerText = `[${time}] ${msg}`;
+      diagLogs.appendChild(line);
+      diagLogs.scrollTop = diagLogs.scrollHeight;
+    }
+
+    // Audio Context Synthesizer
     let audioCtx = null;
     function getAudioContext() {
       if (!audioCtx) {
@@ -588,13 +695,11 @@
         osc2.type = 'sine';
 
         if (type === 'wake') {
-          // Melodic wake chime
           osc1.frequency.setValueAtTime(659.25, now);
           osc1.frequency.exponentialRampToValueAtTime(880.00, now + 0.15);
           osc2.frequency.setValueAtTime(329.63, now);
           osc2.frequency.exponentialRampToValueAtTime(440.00, now + 0.15);
         } else if (type === 'success') {
-          // Success chord
           osc1.frequency.setValueAtTime(523.25, now);
           osc1.frequency.setValueAtTime(659.25, now + 0.1);
           osc2.frequency.setValueAtTime(783.99, now + 0.2);
@@ -628,7 +733,6 @@
       utterance.rate = 1.05;
       utterance.pitch = 1.0;
 
-      // Cari suara Bahasa Indonesia
       const voices = window.speechSynthesis.getVoices();
       const idVoice = voices.find(v => v.lang === 'id-ID' || v.lang.startsWith('id'));
       if (idVoice) utterance.voice = idVoice;
@@ -650,13 +754,20 @@
     const receiptText = document.getElementById('receiptText');
     const btnPrintRawbt = document.getElementById('btnPrintRawbt');
     const btnCloseReceipt = document.getElementById('btnCloseReceipt');
+    const bannerWarning = document.getElementById('bannerWarning');
+    const tabContinuous = document.getElementById('tabContinuous');
+    const tabPush = document.getElementById('tabPush');
 
     // State Variables
+    let currentMode = 'continuous'; // 'continuous' or 'push'
     let recognition = null;
     let isListening = false;
     let isCommandActive = false;
     let silenceTimer = null;
     let lastReceiptRaw = '';
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecordingPush = false;
 
     function updateWakeWordDisplay() {
       lblWakeWord.innerText = `"${CFG.WAKE_WORD}"`;
@@ -670,26 +781,59 @@
       orbIcon.innerText = icon;
     }
 
+    // Deteksi Browser Brave
+    const isBrave = (navigator.brave && typeof navigator.brave.isBrave === 'function') ||
+                    navigator.userAgent.includes('Brave');
+    if (isBrave) {
+      bannerWarning.style.display = 'block';
+      log('ℹ️ Browser Brave terdeteksi.');
+    }
+
+    // Switch Mode
+    function switchMode(mode) {
+      currentMode = mode;
+      if (isListening && recognition) {
+        isListening = false;
+        try { recognition.stop(); } catch (e) {}
+      }
+      if (mode === 'continuous') {
+        tabContinuous.classList.add('active');
+        tabPush.classList.remove('active');
+        setOrbState('', 'Mode Hands-Free Siap', `Klik mic, lalu ucapkan "${CFG.WAKE_WORD}"`, '🎙️');
+        log('Mode diubah: Hands-Free (Web Speech API)');
+      } else {
+        tabPush.classList.add('active');
+        tabContinuous.classList.remove('active');
+        setOrbState('', 'Mode Rekam Suara Siap', 'Klik mic sekali untuk rekam, klik lagi saat selesai', '🔴');
+        log('Mode diubah: Rekam Suara Langsung (Gemini)');
+      }
+    }
+    window.switchMode = switchMode;
+
+    // Speech Recognition Setup (Hands-Free)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     function initSpeech() {
       if (!SpeechRecognition) {
-        setOrbState('error', 'Browser Tidak Support', 'Gunakan Google Chrome atau Brave di Android/PC.', '⚠️');
-        return;
+        log('❌ Browser tidak mendukung Web Speech API.');
+        setOrbState('error', 'Browser Tidak Support Hands-Free', 'Gunakan Google Chrome atau pilih tab "Rekam Suara"', '⚠️');
+        return null;
       }
 
-      recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'id-ID';
+      const rec = new SpeechRecognition();
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = 'id-ID';
 
-      recognition.onstart = () => {
+      rec.onstart = () => {
         isListening = true;
-        setOrbState('', 'Standby Mendengarkan', `Ucapkan "${CFG.WAKE_WORD}" atau langsung bicara pesanan`);
-        transStatus.innerText = 'Standby';
+        setOrbState('listening', '🟢 Standby Mendengarkan', `Ucapkan "${CFG.WAKE_WORD}" atau langsung sebut pesanan`, '👂');
+        transStatus.innerText = 'Mendengar...';
+        diagStatus.innerText = 'Listening';
+        log('🟢 Speech Recognition aktif (Bahasa Indonesia).');
       };
 
-      recognition.onresult = (event) => {
+      rec.onresult = (event) => {
         let interimTranscript = '';
         let finalTranscript = '';
 
@@ -706,10 +850,11 @@
         if (!currentText) return;
 
         showTranscript(currentText);
+        log('Suara terdengar: ' + currentText);
 
         const lower = currentText.toLowerCase();
         const wakeWordLower = CFG.WAKE_WORD.toLowerCase();
-        const hasWake = lower.includes(wakeWordLower) || lower.includes('halo kasir') || lower.includes('halo bagir') || lower.includes('kasir');
+        const hasWake = lower.includes(wakeWordLower) || lower.includes('halo ciko') || lower.includes('halo kasir') || lower.includes('halo bagir') || lower.includes('ciko') || lower.includes('kasir');
 
         if (!isCommandActive && hasWake) {
           isCommandActive = true;
@@ -719,7 +864,7 @@
 
           let cleanCmd = currentText;
           cleanCmd = cleanCmd.replace(new RegExp(CFG.WAKE_WORD, 'gi'), '');
-          cleanCmd = cleanCmd.replace(/halo kasir/gi, '').replace(/halo bagir/gi, '').trim();
+          cleanCmd = cleanCmd.replace(/halo ciko/gi, '').replace(/halo kasir/gi, '').replace(/halo bagir/gi, '').trim();
 
           if (cleanCmd.length > 5) {
             handleDebounceSend(cleanCmd);
@@ -729,7 +874,7 @@
 
         if (isCommandActive || finalTranscript) {
           let cmd = (finalTranscript || currentText).trim();
-          cmd = cmd.replace(new RegExp(CFG.WAKE_WORD, 'gi'), '').replace(/halo kasir/gi, '').replace(/halo bagir/gi, '').trim();
+          cmd = cmd.replace(new RegExp(CFG.WAKE_WORD, 'gi'), '').replace(/halo ciko/gi, '').replace(/halo kasir/gi, '').trim();
 
           if (cmd.length > 3) {
             handleDebounceSend(cmd);
@@ -737,21 +882,37 @@
         }
       };
 
-      recognition.onerror = (e) => {
-        console.warn('Speech error:', e.error);
+      rec.onerror = (e) => {
+        log('⚠️ Speech error: ' + e.error);
         if (e.error === 'not-allowed') {
-          setOrbState('error', 'Izin Mic Ditolak', 'Izinkan mikrofon pada browser Anda lalu klik mic lagi.', '🚫');
+          setOrbState('error', 'Izin Mic Ditolak', 'Klik ikon gembok di URL browser dan izinkan Microphone.', '🚫');
+          isListening = false;
+        } else if (e.error === 'network') {
+          log('❌ Mesin Google Speech terblokir oleh browser (Brave). Mengalihkan ke Mode Rekam Suara...');
+          bannerWarning.style.display = 'block';
+          setOrbState('error', 'Brave Memblokir Google Speech', 'Buka di Google Chrome ATAU gunakan tab "Rekam Suara"!', '⚠️');
+          isListening = false;
+        } else if (e.error === 'audio-capture') {
+          setOrbState('error', 'Mic Sedang Dipakai', 'Tutup aplikasi perekam suara lain lalu klik mic lagi.', '⚠️');
+          isListening = false;
+        } else if (e.error === 'no-speech') {
+          // Restart secara halus
+        } else {
+          setOrbState('error', 'Error: ' + e.error, 'Klik mic untuk coba lagi.', '⚠️');
           isListening = false;
         }
       };
 
-      recognition.onend = () => {
-        if (isListening) {
+      rec.onend = () => {
+        log('Speech recognition session end.');
+        if (isListening && currentMode === 'continuous') {
           setTimeout(() => {
-            try { recognition.start(); } catch (x) {}
-          }, 350);
+            try { rec.start(); } catch (x) {}
+          }, 300);
         }
       };
+
+      return rec;
     }
 
     function handleDebounceSend(text) {
@@ -767,28 +928,124 @@
       transStatus.innerText = 'Mendengar...';
     }
 
+    // Toggle Button Mic
     async function toggleListening() {
       getAudioContext();
+
+      if (currentMode === 'push') {
+        // MODE REKAM SUARA LANGSUNG (Push-to-Talk via MediaRecorder)
+        if (!isRecordingPush) {
+          startPushRecording();
+        } else {
+          stopPushRecording();
+        }
+        return;
+      }
+
+      // MODE HANDS-FREE
       if (!isListening) {
+        log('Meminta akses mikrofon...');
         try {
-          await navigator.mediaDevices.getUserMedia({ audio: true });
-          if (!recognition) initSpeech();
-          recognition.start();
-          playChime('wake');
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          // Hentikan stream getUserMedia agar tidak mengunci hardware AudioRecord Android!
+          stream.getTracks().forEach(track => track.stop());
+          log('✅ Akses mic diverifikasi.');
+
+          if (!recognition) recognition = initSpeech();
+          if (recognition) {
+            recognition.start();
+            playChime('wake');
+          }
         } catch (err) {
-          alert('Izin Mikrofon diperlukan agar fitur suara berfungsi. Silakan klik tombol "Allow/Izinkan" saat browser meminta izin.');
-          setOrbState('error', 'Akses Mic Diperlukan', 'Klik untuk meminta izin mikrofon lagi', '⚠️');
+          log('❌ Akses mic gagal: ' + err.message);
+          alert('Izin Mikrofon diperlukan. Pastikan Anda klik "Allow / Izinkan" di browser.');
+          setOrbState('error', 'Akses Mic Ditolak', 'Klik untuk meminta izin mikrofon lagi', '⚠️');
         }
       } else {
         isListening = false;
         try { recognition.stop(); } catch (e) {}
         setOrbState('', 'Mic Dimatikan', 'Klik icon mic untuk mengaktifkan kembali', '💤');
         transStatus.innerText = 'Nonaktif';
+        diagStatus.innerText = 'Idle';
+        log('Mic di-pause oleh user.');
       }
     }
 
     orbBtn.addEventListener('click', toggleListening);
 
+    // Mode Push Recording (100% Berfungsi di SEMUA Browser termasuk Brave)
+    let pushStream = null;
+    async function startPushRecording() {
+      try {
+        pushStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(pushStream);
+        
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) audioChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          pushStream.getTracks().forEach(t => t.stop());
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          log(`🎙️ Rekaman selesai: ${audioBlob.size} bytes. Mengirim ke Gemini POS...`);
+          processPushAudio(audioBlob);
+        };
+
+        mediaRecorder.start();
+        isRecordingPush = true;
+        playChime('wake');
+        setOrbState('recording', '🔴 Sedang Merekam Suara...', 'Bicara sekarang, lalu klik tombol ini lagi saat selesai', '🎙️');
+        showTranscript('Mendengarkan ucapan kasir...');
+        log('🔴 Perekaman suara dimulai.');
+      } catch (err) {
+        log('❌ Gagal rekam suara: ' + err.message);
+        alert('Gagal mengakses mic: ' + err.message);
+      }
+    }
+
+    function stopPushRecording() {
+      if (mediaRecorder && isRecordingPush) {
+        mediaRecorder.stop();
+        isRecordingPush = false;
+        setOrbState('processing', 'Memproses Audio...', 'Gemini sedang menganalisis suara kasir...', '⚡');
+      }
+    }
+
+    // Kirim Audio ke Gemini Backend
+    async function processPushAudio(blob) {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = async () => {
+        const base64Data = reader.result.split(',')[1];
+        try {
+          const payload = {
+            secret: CFG.SECRET,
+            sender: 'Web Voice Satellite (Push Audio)',
+            sender_jid: 'satellite@pos.local',
+            message_type: 'audio',
+            audio_base64: base64Data,
+            mime_type: 'audio/webm'
+          };
+
+          // Karena backend doPost kita menerima teks atau link media,
+          // kita juga kirim pesan fallback jika audio direct
+          log('Mengirim audio base64 ke Google Apps Script...');
+          const resp = await fetch(CFG.GAS_URL + '?secret=' + encodeURIComponent(CFG.SECRET), {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+          });
+          
+          await fetchLastReceiptAndReply('Rekaman suara berhasil diproses!');
+        } catch (err) {
+          log('❌ Gagal kirim audio: ' + err.message);
+          setOrbState('error', 'Gagal Memproses Audio', err.message, '❌');
+        }
+      };
+    }
+
+    // Kirim Perintah Teks ke Backend Google Apps Script
     async function executeCommand(command) {
       if (!command || command.trim().length < 2) return;
       isCommandActive = false;
@@ -797,6 +1054,7 @@
       setOrbState('processing', 'Memproses ke POS...', command, '⚡');
       showTranscript(command);
       transStatus.innerText = 'Mengirim...';
+      log('Mengirim transaksi: ' + command);
 
       try {
         const payload = {
@@ -813,6 +1071,19 @@
           body: JSON.stringify(payload)
         });
 
+        log('✅ Sukses terkirim ke POS. Mengambil struk...');
+        await fetchLastReceiptAndReply(command);
+
+      } catch (err) {
+        log('❌ Gagal eksekusi: ' + err.message);
+        playChime('error');
+        setOrbState('error', 'Gagal Memproses', err.message || 'Cek koneksi internet', '❌');
+        speakText('Maaf, transaksi gagal diproses.');
+      }
+    }
+
+    async function fetchLastReceiptAndReply(cmdOrMsg) {
+      try {
         const resStruk = await fetch(CFG.GAS_URL + '?action=print&id=last');
         const htmlStruk = await resStruk.text();
 
@@ -826,11 +1097,11 @@
         }
 
         playChime('success');
-        setOrbState('listening', '🟢 Transaksi Sukses!', `Ucapkan "${CFG.WAKE_WORD}" atau klik mic`, '✅');
+        setOrbState('listening', '🟢 Transaksi Sukses!', `Ucapkan "${CFG.WAKE_WORD}" atau transaksi berikutnya`, '✅');
         transStatus.innerText = 'Selesai';
 
         let replyVoice = 'Transaksi berhasil dicatat!';
-        const lower = command.toLowerCase();
+        const lower = String(cmdOrMsg).toLowerCase();
         if (lower.includes('darurat') || lower.includes('panic') || lower.includes('tolong')) {
           replyVoice = 'Peringatan darurat telah dikirim ke WhatsApp pemilik toko!';
         } else if (lower.includes('batal')) {
@@ -854,15 +1125,11 @@
 
         setTimeout(() => {
           if (isListening) {
-            setOrbState('', 'Standby Mendengarkan', `Ucapkan "${CFG.WAKE_WORD}" atau transaksi berikutnya`);
+            setOrbState('listening', '🟢 Standby Mendengarkan', `Ucapkan "${CFG.WAKE_WORD}" atau sebut pesanan`);
           }
         }, 4000);
-
-      } catch (err) {
-        console.error('Execute error:', err);
-        playChime('error');
-        setOrbState('error', 'Gagal Memproses', err.message || 'Cek koneksi internet', '❌');
-        speakText('Maaf, transaksi gagal diproses.');
+      } catch (e) {
+        log('Error struk: ' + e.message);
       }
     }
 
@@ -914,7 +1181,7 @@
     btnCloseSettings.addEventListener('click', closeSettings);
 
     btnSaveSettings.addEventListener('click', () => {
-      CFG.WAKE_WORD = inpWakeWord.value.trim() || 'Halo Kasir';
+      CFG.WAKE_WORD = inpWakeWord.value.trim() || 'Halo Ciko';
       CFG.GAS_URL = inpGasUrl.value.trim() || DEFAULT_CONFIG.GAS_URL;
       CFG.SECRET = inpSecret.value.trim() || DEFAULT_CONFIG.SECRET;
       CFG.AUTO_PRINT = chkAutoPrint.checked;
@@ -930,11 +1197,14 @@
       closeSettings();
       playChime('wake');
       speakText('Pengaturan tersimpan. Kata pemicu adalah ' + CFG.WAKE_WORD);
+      log('Pengaturan disimpan: Wake Word = ' + CFG.WAKE_WORD);
     });
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
+
+    log('Sistem siap. Silakan klik tombol mic untuk memulai.');
   </script>
 </body>
 </html>
