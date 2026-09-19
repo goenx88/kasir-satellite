@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kasir Voice Satellite — Standalone</title>
+  <meta name="theme-color" content="#0d1117">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #151d2f;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #38bdf8;
+      --primary-glow: rgba(56, 189, 248, 0.35);
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.35);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.4);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 24px;
+    }
+
+    /* Header */
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 4px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+    .btn-icon {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.2s;
+    }
+    .btn-icon:hover { color: #fff; border-color: var(--primary); }
+
+    /* Wake Word Badge */
+    .wake-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--primary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .wake-badge:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--primary);
+    }
+    .wake-badge span.pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--primary);
+      animation: pulse 1.8s infinite;
+    }
+
+    /* Voice Orb */
+    .orb-container {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 12px 0;
+      cursor: pointer;
+    }
+    .orb-ring-outer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px dashed rgba(56, 189, 248, 0.2);
+      animation: spin 20s linear infinite;
+      transition: all 0.4s ease;
+    }
+    .orb-ring-inner {
+      position: absolute;
+      width: 82%;
+      height: 82%;
+      border-radius: 50%;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      transition: all 0.4s ease;
+    }
+    .orb {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #38bdf8, #0369a1 70%, #082f49);
+      box-shadow: 0 0 40px var(--primary-glow), inset 0 0 20px rgba(255,255,255,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      z-index: 2;
+    }
+    .orb-icon {
+      font-size: 44px;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+      transition: transform 0.3s;
+    }
+
+    /* Orb States */
+    .orb.listening {
+      background: radial-gradient(circle at 35% 35%, #34d399, #059669 70%, #064e3b);
+      box-shadow: 0 0 60px var(--accent-glow), inset 0 0 25px rgba(255,255,255,0.5);
+      transform: scale(1.08);
+    }
+    .orb.processing {
+      background: radial-gradient(circle at 35% 35%, #fbbf24, #d97706 70%, #78350f);
+      box-shadow: 0 0 60px rgba(245, 158, 11, 0.5), inset 0 0 25px rgba(255,255,255,0.5);
+      animation: pulse 1s infinite;
+    }
+    .orb.error {
+      background: radial-gradient(circle at 35% 35%, #f87171, #dc2626 70%, #7f1d1d);
+      box-shadow: 0 0 60px var(--danger-glow);
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.04); opacity: 0.85; }
+    }
+
+    /* Status Text */
+    .status-panel {
+      text-align: center;
+      min-height: 52px;
+    }
+    .status-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+      transition: color 0.3s;
+    }
+    .status-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Live Transcript Card */
+    .transcript-card {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .transcript-text {
+      font-size: 15px;
+      font-weight: 500;
+      color: #e5e7eb;
+      min-height: 24px;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+    .transcript-text.placeholder {
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    /* Receipt Box */
+    .receipt-card {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .receipt-pre {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 12px;
+      background: #090d16;
+      border: 1px solid #1f293d;
+      border-radius: 8px;
+      padding: 12px;
+      color: #34d399;
+      white-space: pre-wrap;
+      line-height: 1.35;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .receipt-actions {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+    .btn-action {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-print {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+    .btn-print:hover { filter: brightness(1.1); }
+    .btn-close-receipt {
+      background: #374151;
+      color: #e5e7eb;
+    }
+
+    /* Quick Chips */
+    .chips-label {
+      width: 100%;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-align: left;
+    }
+    .chips-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .chip {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      color: #e5e7eb;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.3;
+    }
+    .chip:hover {
+      background: #1e293b;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+    .chip.panic {
+      grid-column: span 2;
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      font-weight: 600;
+      justify-content: center;
+    }
+    .chip.panic:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: var(--danger);
+    }
+
+    /* Settings Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .modal-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title { font-size: 16px; font-weight: 700; color: #fff; }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .input-group label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .input-group input {
+      background: #090d16;
+      border: 1px solid #1f293d;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+    .input-group input:focus { border-color: var(--primary); }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+    }
+    .toggle-row span { font-size: 13px; color: #e5e7eb; }
+
+    /* Footer */
+    footer {
+      margin-top: auto;
+      font-size: 11px;
+      color: #6b7280;
+      text-align: center;
+      padding-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="brand-logo">🎙️</div>
+        <div>
+          <div class="brand-title">KASIR SATELLITE</div>
+          <div class="brand-sub">Standalone Voice POS Engine</div>
+        </div>
+      </div>
+      <button class="btn-icon" id="btnSettings" title="Pengaturan">⚙️</button>
+    </header>
+
+    <!-- Wake Word Trigger Badge -->
+    <div class="wake-badge" id="wakeBadge" title="Klik untuk ubah Wake Word">
+      <span class="pulse-dot"></span>
+      <span>Kata Pemicu: <strong id="lblWakeWord">"Halo Kasir"</strong></span>
+      <span>✏️</span>
+    </div>
+
+    <!-- Voice Orb -->
+    <div class="orb-container" id="orbBtn">
+      <div class="orb-ring-outer" id="orbRingOuter"></div>
+      <div class="orb-ring-inner" id="orbRingInner"></div>
+      <div class="orb" id="orb">
+        <div class="orb-icon" id="orbIcon">🎙️</div>
+      </div>
+    </div>
+
+    <!-- Status Text -->
+    <div class="status-panel">
+      <div class="status-title" id="statusTitle">Klik Mic untuk Memulai</div>
+      <div class="status-sub" id="statusSub">Ucapkan kata pemicu atau langsung sentuh mic</div>
+    </div>
+
+    <!-- Live Transcript Card -->
+    <div class="transcript-card">
+      <div class="card-label">
+        <span>Transkripsi Suara Terakhir</span>
+        <span id="transStatus">Siap</span>
+      </div>
+      <div class="transcript-text placeholder" id="transcriptText">Belum ada suara terdeteksi...</div>
+    </div>
+
+    <!-- Receipt Display Card -->
+    <div class="receipt-card" id="receiptCard">
+      <div class="card-label">
+        <span>Struk Penjualan Terbaru</span>
+        <span id="receiptIdBadge">TRX-LAST</span>
+      </div>
+      <pre class="receipt-pre" id="receiptText">Memuat struk...</pre>
+      <div class="receipt-actions">
+        <button class="btn-action btn-print" id="btnPrintRawbt">🖨️ Cetak Struk (RawBT)</button>
+        <button class="btn-action btn-close-receipt" id="btnCloseReceipt">Tutup</button>
+      </div>
+    </div>
+
+    <!-- Quick Action Chips -->
+    <div class="chips-label">Simulasi Cepat (Klik untuk Tes Suara)</div>
+    <div class="chips-grid">
+      <div class="chip" onclick="simulateVoice('Es Kopi Susu 2 cup 36rb cash')">
+        <span>☕</span>
+        <span>2 Es Kopi Susu (36rb Cash)</span>
+      </div>
+      <div class="chip" onclick="simulateVoice('Beli susu kental manis 10 kaleng 120rb Toko Sumber')">
+        <span>📦</span>
+        <span>Kulakan Supplier 120rb</span>
+      </div>
+      <div class="chip" onclick="simulateVoice('resep Es Kopi Susu')">
+        <span>📋</span>
+        <span>Cek Resep & Sisa Stok</span>
+      </div>
+      <div class="chip" onclick="simulateVoice('batalkan yang tadi')">
+        <span>🔄</span>
+        <span>Undo Transaksi Terakhir</span>
+      </div>
+      <div class="chip panic" onclick="simulateVoice('Darurat kasir butuh bantuan')">
+        <span>🚨</span>
+        <span>PANIC BUTTON (Darurat Kasir)</span>
+      </div>
+    </div>
+
+    <footer>
+      Simple Kasir v4.0 • Standalone Web Satellite • Multi-Tenant UMKM
+    </footer>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Pengaturan Voice Satellite</div>
+        <button class="btn-icon" id="btnCloseSettings">✕</button>
+      </div>
+
+      <div class="input-group">
+        <label>Custom Wake Word (Kata Pemicu)</label>
+        <input type="text" id="inpWakeWord" placeholder="Contoh: Halo Bagir, Halo Kasir, dll">
+      </div>
+
+      <div class="input-group">
+        <label>URL Web App Google Apps Script</label>
+        <input type="text" id="inpGasUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+
+      <div class="input-group">
+        <label>Webhook Secret Key</label>
+        <input type="password" id="inpSecret" placeholder="sk_kasir_...">
+      </div>
+
+      <div class="toggle-row">
+        <span>Auto-Print ke RawBT Local (Port 40213)</span>
+        <input type="checkbox" id="chkAutoPrint">
+      </div>
+
+      <div class="toggle-row">
+        <span>Suara Balasan Asisten (TTS)</span>
+        <input type="checkbox" id="chkVoiceFeedback" checked>
+      </div>
+
+      <button class="btn-action btn-print" id="btnSaveSettings" style="margin-top: 6px;">Simpan Pengaturan</button>
+    </div>
+  </div>
+
+  <script>
+    // Konfigurasi Default Sistem
+    const DEFAULT_CONFIG = {
+      GAS_URL: 'https://script.google.com/macros/s/AKfycbwE__FljOWLc29vJVF_bUF2eEgJ_X3QOfuwCxAG8dEA29RBIKxkmYk2IRTijKDTTe50Hg/exec',
+      SECRET: 'sk_kasir_2271e024-eb90-47',
+      WAKE_WORD: 'Halo Kasir',
+      AUTO_PRINT: false,
+      VOICE_FEEDBACK: true
+    };
+
+    // Load Local Storage
+    let CFG = {
+      GAS_URL: localStorage.getItem('POS_GAS_URL') || DEFAULT_CONFIG.GAS_URL,
+      SECRET: localStorage.getItem('POS_SECRET') || DEFAULT_CONFIG.SECRET,
+      WAKE_WORD: localStorage.getItem('POS_WAKE_WORD') || DEFAULT_CONFIG.WAKE_WORD,
+      AUTO_PRINT: localStorage.getItem('POS_AUTO_PRINT') === 'true',
+      VOICE_FEEDBACK: localStorage.getItem('POS_VOICE_FEEDBACK') !== 'false'
+    };
+
+    // Audio Context Synthesizer (Chime & Beeps)
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playChime(type = 'wake') {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc2.type = 'sine';
+
+        if (type === 'wake') {
+          // Melodic wake chime
+          osc1.frequency.setValueAtTime(659.25, now);
+          osc1.frequency.exponentialRampToValueAtTime(880.00, now + 0.15);
+          osc2.frequency.setValueAtTime(329.63, now);
+          osc2.frequency.exponentialRampToValueAtTime(440.00, now + 0.15);
+        } else if (type === 'success') {
+          // Success chord
+          osc1.frequency.setValueAtTime(523.25, now);
+          osc1.frequency.setValueAtTime(659.25, now + 0.1);
+          osc2.frequency.setValueAtTime(783.99, now + 0.2);
+        } else if (type === 'error') {
+          osc1.frequency.setValueAtTime(220, now);
+          osc1.frequency.linearRampToValueAtTime(160, now + 0.25);
+        }
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.45);
+        osc2.stop(now + 0.45);
+      } catch (e) {
+        console.warn('Audio chime error:', e);
+      }
+    }
+
+    // Text to Speech (TTS)
+    function speakText(text) {
+      if (!CFG.VOICE_FEEDBACK || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'id-ID';
+      utterance.rate = 1.05;
+      utterance.pitch = 1.0;
+
+      // Cari suara Bahasa Indonesia
+      const voices = window.speechSynthesis.getVoices();
+      const idVoice = voices.find(v => v.lang === 'id-ID' || v.lang.startsWith('id'));
+      if (idVoice) utterance.voice = idVoice;
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Elements
+    const orb = document.getElementById('orb');
+    const orbIcon = document.getElementById('orbIcon');
+    const orbBtn = document.getElementById('orbBtn');
+    const statusTitle = document.getElementById('statusTitle');
+    const statusSub = document.getElementById('statusSub');
+    const transcriptText = document.getElementById('transcriptText');
+    const transStatus = document.getElementById('transStatus');
+    const lblWakeWord = document.getElementById('lblWakeWord');
+    const wakeBadge = document.getElementById('wakeBadge');
+    const receiptCard = document.getElementById('receiptCard');
+    const receiptText = document.getElementById('receiptText');
+    const btnPrintRawbt = document.getElementById('btnPrintRawbt');
+    const btnCloseReceipt = document.getElementById('btnCloseReceipt');
+
+    // State Variables
+    let recognition = null;
+    let isListening = false;
+    let isCommandActive = false;
+    let silenceTimer = null;
+    let lastReceiptRaw = '';
+
+    function updateWakeWordDisplay() {
+      lblWakeWord.innerText = `"${CFG.WAKE_WORD}"`;
+    }
+    updateWakeWordDisplay();
+
+    function setOrbState(state, title, sub, icon = '🎙️') {
+      orb.className = 'orb ' + (state || '');
+      statusTitle.innerText = title;
+      statusSub.innerText = sub;
+      orbIcon.innerText = icon;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    function initSpeech() {
+      if (!SpeechRecognition) {
+        setOrbState('error', 'Browser Tidak Support', 'Gunakan Google Chrome atau Brave di Android/PC.', '⚠️');
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'id-ID';
+
+      recognition.onstart = () => {
+        isListening = true;
+        setOrbState('', 'Standby Mendengarkan', `Ucapkan "${CFG.WAKE_WORD}" atau langsung bicara pesanan`);
+        transStatus.innerText = 'Standby';
+      };
+
+      recognition.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const res = event.results[i];
+          if (res.isFinal) {
+            finalTranscript += res[0].transcript;
+          } else {
+            interimTranscript += res[0].transcript;
+          }
+        }
+
+        const currentText = (finalTranscript || interimTranscript).trim();
+        if (!currentText) return;
+
+        showTranscript(currentText);
+
+        const lower = currentText.toLowerCase();
+        const wakeWordLower = CFG.WAKE_WORD.toLowerCase();
+        const hasWake = lower.includes(wakeWordLower) || lower.includes('halo kasir') || lower.includes('halo bagir') || lower.includes('kasir');
+
+        if (!isCommandActive && hasWake) {
+          isCommandActive = true;
+          playChime('wake');
+          setOrbState('listening', '🟢 Mendengarkan Pesanan...', 'Silakan sebutkan transaksi...', '👂');
+          speakText('Siap, silakan bicara');
+
+          let cleanCmd = currentText;
+          cleanCmd = cleanCmd.replace(new RegExp(CFG.WAKE_WORD, 'gi'), '');
+          cleanCmd = cleanCmd.replace(/halo kasir/gi, '').replace(/halo bagir/gi, '').trim();
+
+          if (cleanCmd.length > 5) {
+            handleDebounceSend(cleanCmd);
+          }
+          return;
+        }
+
+        if (isCommandActive || finalTranscript) {
+          let cmd = (finalTranscript || currentText).trim();
+          cmd = cmd.replace(new RegExp(CFG.WAKE_WORD, 'gi'), '').replace(/halo kasir/gi, '').replace(/halo bagir/gi, '').trim();
+
+          if (cmd.length > 3) {
+            handleDebounceSend(cmd);
+          }
+        }
+      };
+
+      recognition.onerror = (e) => {
+        console.warn('Speech error:', e.error);
+        if (e.error === 'not-allowed') {
+          setOrbState('error', 'Izin Mic Ditolak', 'Izinkan mikrofon pada browser Anda lalu klik mic lagi.', '🚫');
+          isListening = false;
+        }
+      };
+
+      recognition.onend = () => {
+        if (isListening) {
+          setTimeout(() => {
+            try { recognition.start(); } catch (x) {}
+          }, 350);
+        }
+      };
+    }
+
+    function handleDebounceSend(text) {
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => {
+        executeCommand(text);
+      }, 1400);
+    }
+
+    function showTranscript(text) {
+      transcriptText.innerText = text;
+      transcriptText.classList.remove('placeholder');
+      transStatus.innerText = 'Mendengar...';
+    }
+
+    async function toggleListening() {
+      getAudioContext();
+      if (!isListening) {
+        try {
+          await navigator.mediaDevices.getUserMedia({ audio: true });
+          if (!recognition) initSpeech();
+          recognition.start();
+          playChime('wake');
+        } catch (err) {
+          alert('Izin Mikrofon diperlukan agar fitur suara berfungsi. Silakan klik tombol "Allow/Izinkan" saat browser meminta izin.');
+          setOrbState('error', 'Akses Mic Diperlukan', 'Klik untuk meminta izin mikrofon lagi', '⚠️');
+        }
+      } else {
+        isListening = false;
+        try { recognition.stop(); } catch (e) {}
+        setOrbState('', 'Mic Dimatikan', 'Klik icon mic untuk mengaktifkan kembali', '💤');
+        transStatus.innerText = 'Nonaktif';
+      }
+    }
+
+    orbBtn.addEventListener('click', toggleListening);
+
+    async function executeCommand(command) {
+      if (!command || command.trim().length < 2) return;
+      isCommandActive = false;
+      playChime('wake');
+
+      setOrbState('processing', 'Memproses ke POS...', command, '⚡');
+      showTranscript(command);
+      transStatus.innerText = 'Mengirim...';
+
+      try {
+        const payload = {
+          secret: CFG.SECRET,
+          sender: 'Web Voice Satellite (Standalone)',
+          sender_jid: 'satellite@pos.local',
+          message: command,
+          message_type: 'text'
+        };
+
+        await fetch(CFG.GAS_URL + '?secret=' + encodeURIComponent(CFG.SECRET), {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+
+        const resStruk = await fetch(CFG.GAS_URL + '?action=print&id=last');
+        const htmlStruk = await resStruk.text();
+
+        let receiptClean = '';
+        const match = htmlStruk.match(/<pre[^>]*>([\s\S]*?)<\/pre>/i);
+        if (match) {
+          receiptClean = match[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+          lastReceiptRaw = receiptClean;
+          receiptText.innerText = receiptClean.trim();
+          receiptCard.style.display = 'flex';
+        }
+
+        playChime('success');
+        setOrbState('listening', '🟢 Transaksi Sukses!', `Ucapkan "${CFG.WAKE_WORD}" atau klik mic`, '✅');
+        transStatus.innerText = 'Selesai';
+
+        let replyVoice = 'Transaksi berhasil dicatat!';
+        const lower = command.toLowerCase();
+        if (lower.includes('darurat') || lower.includes('panic') || lower.includes('tolong')) {
+          replyVoice = 'Peringatan darurat telah dikirim ke WhatsApp pemilik toko!';
+        } else if (lower.includes('batal')) {
+          replyVoice = 'Transaksi terakhir berhasil dibatalkan dan stok dikembalikan!';
+        } else if (lower.includes('beli') || lower.includes('kulakan')) {
+          replyVoice = 'Pembelian supplier berhasil dicatat!';
+        } else if (lower.includes('resep')) {
+          replyVoice = 'Berikut data resep dan sisa kapasitas porsi bahan baku.';
+        } else {
+          replyVoice = 'Penjualan berhasil dicatat! Struk siap dicetak.';
+        }
+        speakText(replyVoice);
+
+        if (CFG.AUTO_PRINT && receiptClean) {
+          fetch('http://localhost:40213/print', {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: receiptClean
+          }).catch(() => {});
+        }
+
+        setTimeout(() => {
+          if (isListening) {
+            setOrbState('', 'Standby Mendengarkan', `Ucapkan "${CFG.WAKE_WORD}" atau transaksi berikutnya`);
+          }
+        }, 4000);
+
+      } catch (err) {
+        console.error('Execute error:', err);
+        playChime('error');
+        setOrbState('error', 'Gagal Memproses', err.message || 'Cek koneksi internet', '❌');
+        speakText('Maaf, transaksi gagal diproses.');
+      }
+    }
+
+    btnPrintRawbt.addEventListener('click', () => {
+      if (!lastReceiptRaw) {
+        alert('Belum ada struk untuk dicetak.');
+        return;
+      }
+      const base64Receipt = btoa(unescape(encodeURIComponent(lastReceiptRaw)));
+      const rawbtUri = 'rawbt:data:application/octet-stream;base64,' + base64Receipt;
+      window.location.href = rawbtUri;
+    });
+
+    btnCloseReceipt.addEventListener('click', () => {
+      receiptCard.style.display = 'none';
+    });
+
+    function simulateVoice(text) {
+      getAudioContext();
+      executeCommand(text);
+    }
+    window.simulateVoice = simulateVoice;
+
+    const settingsModal = document.getElementById('settingsModal');
+    const btnSettings = document.getElementById('btnSettings');
+    const btnCloseSettings = document.getElementById('btnCloseSettings');
+    const btnSaveSettings = document.getElementById('btnSaveSettings');
+    const inpWakeWord = document.getElementById('inpWakeWord');
+    const inpGasUrl = document.getElementById('inpGasUrl');
+    const inpSecret = document.getElementById('inpSecret');
+    const chkAutoPrint = document.getElementById('chkAutoPrint');
+    const chkVoiceFeedback = document.getElementById('chkVoiceFeedback');
+
+    function openSettings() {
+      inpWakeWord.value = CFG.WAKE_WORD;
+      inpGasUrl.value = CFG.GAS_URL;
+      inpSecret.value = CFG.SECRET;
+      chkAutoPrint.checked = CFG.AUTO_PRINT;
+      chkVoiceFeedback.checked = CFG.VOICE_FEEDBACK;
+      settingsModal.style.display = 'flex';
+    }
+
+    function closeSettings() {
+      settingsModal.style.display = 'none';
+    }
+
+    btnSettings.addEventListener('click', openSettings);
+    wakeBadge.addEventListener('click', openSettings);
+    btnCloseSettings.addEventListener('click', closeSettings);
+
+    btnSaveSettings.addEventListener('click', () => {
+      CFG.WAKE_WORD = inpWakeWord.value.trim() || 'Halo Kasir';
+      CFG.GAS_URL = inpGasUrl.value.trim() || DEFAULT_CONFIG.GAS_URL;
+      CFG.SECRET = inpSecret.value.trim() || DEFAULT_CONFIG.SECRET;
+      CFG.AUTO_PRINT = chkAutoPrint.checked;
+      CFG.VOICE_FEEDBACK = chkVoiceFeedback.checked;
+
+      localStorage.setItem('POS_WAKE_WORD', CFG.WAKE_WORD);
+      localStorage.setItem('POS_GAS_URL', CFG.GAS_URL);
+      localStorage.setItem('POS_SECRET', CFG.SECRET);
+      localStorage.setItem('POS_AUTO_PRINT', CFG.AUTO_PRINT);
+      localStorage.setItem('POS_VOICE_FEEDBACK', CFG.VOICE_FEEDBACK);
+
+      updateWakeWordDisplay();
+      closeSettings();
+      playChime('wake');
+      speakText('Pengaturan tersimpan. Kata pemicu adalah ' + CFG.WAKE_WORD);
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
