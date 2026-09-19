@@ -585,9 +585,9 @@
         <span>📦</span>
         <span>Kulakan Supplier 120rb</span>
       </div>
-      <div class="chip" onclick="simulateVoice('resep Es Kopi Susu')">
-        <span>📋</span>
-        <span>Cek Resep & Sisa Stok</span>
+      <div class="chip" onclick="simulateVoice('Indomie Goreng 2 pcs 4rb cash')">
+        <span>🍜</span>
+        <span>2 Indomie (@4rb Cash)</span>
       </div>
       <div class="chip" onclick="simulateVoice('batalkan yang tadi')">
         <span>🔄</span>
@@ -1104,7 +1104,7 @@
         const lower = String(cmdOrMsg).toLowerCase();
         if (lower.includes('darurat') || lower.includes('panic') || lower.includes('tolong')) {
           replyVoice = 'Peringatan darurat telah dikirim ke WhatsApp pemilik toko!';
-        } else if (lower.includes('batal')) {
+        } else if (lower.includes('batal') || lower.includes('hapus') || lower.includes('cancel') || lower.includes('undo')) {
           replyVoice = 'Transaksi terakhir berhasil dibatalkan dan stok dikembalikan!';
         } else if (lower.includes('beli') || lower.includes('kulakan')) {
           replyVoice = 'Pembelian supplier berhasil dicatat!';
